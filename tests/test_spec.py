@@ -66,3 +66,53 @@ class TestParserSpec(unittest.TestCase):
         s = ty.cast(spec.ParserLeaf, s)
         self.assertEqual(spec.Argument(name="files", tpe="typing.List[str]", optional=False,
                                        default=None, desc="list of files"), s.get("files"))
+
+    def test_spec_from_object(self):
+        class CLI(object):
+            def command1(self, filename: str, number: ty.Optional[int] = 0):
+                """My command1
+
+                Args:
+                    filename: file path
+                    number: number of lines
+                """
+                pass
+
+            def command2(self, test: bool = False, key: ty.Optional[str] = "xxx"):
+                """My command2
+
+                Args:
+                    test: test mode
+                    key: just a key
+                """
+                pass
+
+        s = spec.create(CLI())
+        self.assertTrue(isinstance(s, spec.ParserNode))
+
+        s = ty.cast(spec.ParserNode, s)
+        self.assertEqual(2, len(s.children))
+
+        s1 = s.children[0]
+        s2 = s.children[1]
+
+        self.assertTrue(isinstance(s1, spec.ParserLeaf))
+        self.assertTrue(isinstance(s2, spec.ParserLeaf))
+
+        self.assertEqual("command1", s1.name)
+        self.assertEqual("command2", s2.name)
+
+        s1 = ty.cast(spec.ParserLeaf, s1)
+        s2 = ty.cast(spec.ParserLeaf, s2)
+
+        self.assertEqual(spec.Argument(name="filename", tpe="str", optional=False,
+                                       default=None, desc="file path"), s1.get("filename"))
+
+        self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
+                                       default=0, desc="number of lines"), s1.get("number"))
+
+        self.assertEqual(spec.Argument(name="test", tpe="bool", optional=True,
+                                       default=False, desc="test mode"), s2.get("test"))
+
+        self.assertEqual(spec.Argument(name="key", tpe="str", optional=True,
+                                       default="xxx", desc="just a key"), s2.get("key"))

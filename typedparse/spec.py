@@ -65,13 +65,19 @@ class ParserLeaf(ParserSpec):
 
 
 def _create_from_function(obj: ty.Callable, is_method: bool) -> ParserLeaf:
+    # args_spec.defaults should be right-aligned to have the same
+    # dimension as args_spec.args has
+    def align_right(xs: ty.List[ty.Any], n) -> ty.List:
+        indent = [None] * (n - len(xs))
+        return indent + xs
+
     args_spec = inspect.getfullargspec(obj)
     doc = parse(inspect.getdoc(obj))
     desc = doc.short_description
     spec = ParserLeaf(obj.__name__, desc)
 
     offset = 1 if is_method else 0
-    defaults = args_spec.defaults if args_spec.defaults is not None else [None] * len(args_spec.args[offset:])
+    defaults = align_right(list(args_spec.defaults), len(args_spec.args) - 1) if args_spec.defaults is not None else [None] * len(args_spec.args[offset:])
     for index, (name, default) in enumerate(zip(args_spec.args[offset:], defaults)):
         tpe = str(args_spec.annotations[name])
         is_opt, in_type = _is_optional(tpe)

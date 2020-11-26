@@ -6,7 +6,8 @@ import typedparse.spec as spec
 
 class TestParserSpec(unittest.TestCase):
     def test_positional_and_optional_args(self):
-        def add(param1: str = "default", param2: ty.Optional[str] = None, param3: ty.Optional[str] = None,
+        # note: param5 is positional bool with default value, but param6 is optional bool
+        def add(param1: str = "default", param2: int = 10, param3: ty.Optional[int] = 1,
                 param4: ty.Optional[str] = None, param5: bool = False, param6: ty.Optional[bool] = None,
                 param7: ty.Optional[int] = None):
             """Create a new profile
@@ -35,16 +36,16 @@ class TestParserSpec(unittest.TestCase):
         self.assertEqual(spec.Argument(name="param1", tpe="str", optional=False,
                                        default="default", desc="do something 1"), s.get("param1"))
 
-        self.assertEqual(spec.Argument(name="param2", tpe="str", optional=True,
-                                       default=None, desc="do something 2"), s.get("param2"))
+        self.assertEqual(spec.Argument(name="param2", tpe="int", optional=False,
+                                       default=10, desc="do something 2"), s.get("param2"))
 
-        self.assertEqual(spec.Argument(name="param3", tpe="str", optional=True,
-                                       default=None, desc="do something 3"), s.get("param3"))
+        self.assertEqual(spec.Argument(name="param3", tpe="int", optional=True,
+                                       default=1, desc="do something 3"), s.get("param3"))
 
         self.assertEqual(spec.Argument(name="param4", tpe="str", optional=True,
                                        default=None, desc="do something 4"), s.get("param4"))
 
-        self.assertEqual(spec.Argument(name="param5", tpe="bool", optional=True,
+        self.assertEqual(spec.Argument(name="param5", tpe="bool", optional=False,
                                        default=False, desc="do something 5"), s.get("param5"))
 
         self.assertEqual(spec.Argument(name="param6", tpe="bool", optional=True,
@@ -111,7 +112,7 @@ class TestParserSpec(unittest.TestCase):
         self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
                                        default=0, desc="number of lines"), s1.get("number"))
 
-        self.assertEqual(spec.Argument(name="test", tpe="bool", optional=True,
+        self.assertEqual(spec.Argument(name="test", tpe="bool", optional=False,
                                        default=False, desc="test mode"), s2.get("test"))
 
         self.assertEqual(spec.Argument(name="key", tpe="str", optional=True,

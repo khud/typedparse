@@ -1,8 +1,6 @@
 import abc
 import typing as ty
 
-import typedparse.spec as spec
-
 
 class Parser(object):
     @abc.abstractmethod

@@ -81,8 +81,7 @@ def _create_from_function(obj: ty.Callable, is_method: bool) -> ParserLeaf:
     for index, (name, default) in enumerate(zip(args_spec.args[offset:], defaults)):
         tpe = str(args_spec.annotations[name])
         is_opt, in_type = _is_optional(tpe)
-        optional = is_opt or (_is_bool(tpe) and default is not None)
-        spec.add(name.replace("_", "-"), in_type or _type(tpe), optional, default,
+        spec.add(name.replace("_", "-"), in_type or _type(tpe), is_opt, default,
                  doc.params[index].description)
 
     return spec

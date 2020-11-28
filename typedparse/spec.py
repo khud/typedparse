@@ -49,8 +49,9 @@ class ParserNode(ParserSpec):
 
 
 class ParserLeaf(ParserSpec):
-    def __init__(self, name: ty.Optional[str] = None, desc: ty.Optional[str] = None):
+    def __init__(self, func: ty.Callable, name: ty.Optional[str] = None, desc: ty.Optional[str] = None):
         super().__init__(name, desc)
+        self.func = func
         self.args: ty.List[Argument] = []
 
     def add(self, name: str, tpe: str, optional: bool, default: ty.Optional[ty.Any], desc: str):
@@ -64,17 +65,17 @@ class ParserLeaf(ParserSpec):
         return None
 
 
-def _create_from_function(obj: ty.Callable, is_method: bool) -> ParserLeaf:
+def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
     # args_spec.defaults should be right-aligned to have the same
     # dimension as args_spec.args has
     def align_right(xs: ty.List[ty.Any], n) -> ty.List:
         indent = [None] * (n - len(xs))
         return indent + xs
 
-    args_spec = inspect.getfullargspec(obj)
-    doc = parse(inspect.getdoc(obj))
+    args_spec = inspect.getfullargspec(func)
+    doc = parse(inspect.getdoc(func))
     desc = doc.short_description
-    spec = ParserLeaf(obj.__name__, desc)
+    spec = ParserLeaf(func, func.__name__, desc)
 
     offset = 1 if is_method else 0
     defaults = align_right(list(args_spec.defaults), len(args_spec.args) - 1) \

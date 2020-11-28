@@ -1,6 +1,6 @@
 import typing as ty
 import abc
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 
 from typedparse.parser import Parser, ParserFactory
 import typedparse.spec as spec
@@ -11,12 +11,19 @@ class AbstractArgParser(abc.ABC, Parser):
         self.parser = parser
 
     def parse(self, args: ty.Optional[ty.List[str]] = None):
-        self.parser.parse_args(args)
+        args = self.parser.parse_args(args)
+        args.func(args)
 
 
 class ArgParserLeaf(AbstractArgParser):
     def __init__(self, parser: ArgumentParser, sp: spec.ParserLeaf):
         super().__init__(parser)
+
+        def func(args: Namespace):
+            args = vars(args)
+            actual_args = [args[a.name] for a in sp.args]
+            sp.func(*actual_args)
+
         for arg in sp.args:
             name = arg.name if not arg.optional else f"--{arg.name}"
             is_list, in_type = arg.is_list()
@@ -28,8 +35,9 @@ class ArgParserLeaf(AbstractArgParser):
                 kwargs = {}
                 if arg.default is not None:
                     kwargs.update(nargs="?")
-                    # kwargs.update()
                 self.parser.add_argument(name, help=arg.desc, **kwargs)
+
+        self.parser.set_defaults(func=func)
 
 
 class ArgParserNode(AbstractArgParser):

@@ -34,7 +34,11 @@ class ArgParserLeaf(AbstractArgParser):
             else:
                 kwargs = {}
                 if arg.default is not None:
-                    kwargs.update(nargs="?")
+                    kwargs.update(nargs="?", default=arg.default)
+
+                if arg.tpe == "int":
+                    kwargs.update(type=int)
+
                 self.parser.add_argument(name, help=arg.desc, **kwargs)
 
         self.parser.set_defaults(func=func)

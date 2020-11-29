@@ -32,6 +32,9 @@ class TestParserSpec(unittest.TestCase):
 
     def test_subparsers_level1(self):
         class CLI(object):
+            def __init__(self, holder: ArgHolder):
+                self.holder = holder
+
             def command1(self, filename: str, number: ty.Optional[int] = 0):
                 """My command1
 
@@ -39,18 +42,33 @@ class TestParserSpec(unittest.TestCase):
                     filename: file path
                     number: number of lines
                 """
-                pass
+                self.holder.command = "command1"
+                self.holder.args["filename"] = filename
+                self.holder.args["number"] = number
 
-            def command2(self, test: bool = False, key: ty.Optional[str] = "xxx"):
+            def command2(self, test: ty.Optional[bool] = False, key: ty.Optional[str] = "xxx"):
                 """My command2
 
                 Args:
                     test: test mode
                     key: just a key
                 """
-                pass
+                self.holder.command = "command2"
+                self.holder.args["test"] = test
+                self.holder.args["key"] = key
 
-        pass
+        holder = ArgHolder()
+        parser = ArgParserFactory().create(CLI(holder))
+        parser.parse(["command1", "hello.txt", "--number", "10"])
+
+        self.assertEqual("command1", holder.command)
+        self.assertEqual("hello.txt", holder.args["filename"])
+        self.assertEqual(10, holder.args["number"])
+
+        parser.parse(["command2", "--test"])
+        self.assertEqual("command2", holder.command)
+        self.assertTrue(holder.args["test"])
+        self.assertEqual("xxx", holder.args["key"])
 
     def test_subparsers_level2(self):
         class Config:

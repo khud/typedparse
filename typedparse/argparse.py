@@ -39,6 +39,9 @@ class ArgParserLeaf(AbstractArgParser):
                 if arg.tpe == "int":
                     kwargs.update(type=int)
 
+                if arg.tpe == "float":
+                    kwargs.update(type=float)
+
                 self.parser.add_argument(name, help=arg.desc, **kwargs)
 
         self.parser.set_defaults(func=func)

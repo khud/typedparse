@@ -32,8 +32,8 @@ class TestParserSpec(unittest.TestCase):
 
     def test_subparsers_level1(self):
         class CLI(object):
-            def __init__(self, holder: ArgsHolder):
-                self.holder = holder
+            def __init__(self, args_holder: ArgsHolder):
+                self.holder = args_holder
 
             def command1(self, filename: str, float_number: float, number: ty.Optional[int] = 0):
                 """My command1
@@ -129,3 +129,44 @@ class TestParserSpec(unittest.TestCase):
 
         self.assertEqual("start", holder2.command)
         self.assertEqual(0, len(holder2.args))
+
+    def test_list_arg(self):
+        holder = ArgsHolder()
+
+        def main(filename: str, nums: ty.Optional[ty.List[int]]):
+            """My brand-new cli
+
+            Args:
+                filename: file path
+                nums: some numbers
+            """
+            holder.args["filename"] = filename
+            holder.args["nums"] = nums
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["test.txt", "--nums", "1", "2", "3"])
+
+        self.assertEqual([1, 2, 3], holder.args["nums"])
+        self.assertEqual("test.txt", holder.args["filename"])
+
+    def test_defaults(self):
+        holder = ArgsHolder()
+
+        def main(filename: str, test: int = 10, opt: ty.Optional[str] = None):
+            """My brand-new cli
+
+            Args:
+                filename: file path
+                test: just for test
+                opt: optional
+            """
+            holder.args["filename"] = filename
+            holder.args["test"] = test
+            holder.args["opt"] = opt
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["test.txt"])
+
+        self.assertEqual("test.txt", holder.args["filename"])
+        self.assertEqual(10, holder.args["test"])
+        self.assertIsNone(holder.args["opt"])

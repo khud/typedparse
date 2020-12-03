@@ -29,17 +29,25 @@ class ArgParserLeaf(AbstractArgParser):
             is_list, in_type = arg.is_list()
             if arg.tpe == "bool":
                 self.parser.add_argument(name, help=arg.desc, action="store_true")
-            elif is_list:
-                pass
             else:
                 kwargs = {}
-                if arg.default is not None:
-                    kwargs.update(nargs="?", default=arg.default)
 
-                if arg.tpe == "int":
+                if is_list:
+                    tpe = in_type
+                    kwargs.update(nargs="+")
+                else:
+                    tpe = arg.tpe
+
+                if arg.default is not None or arg.optional:
+                    if not is_list:
+                        kwargs.update(nargs="?")
+
+                    kwargs.update(default=arg.default)
+
+                if tpe == "int":
                     kwargs.update(type=int)
 
-                if arg.tpe == "float":
+                if tpe == "float":
                     kwargs.update(type=float)
 
                 self.parser.add_argument(name, help=arg.desc, **kwargs)

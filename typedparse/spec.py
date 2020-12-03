@@ -78,7 +78,7 @@ def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
     spec = ParserLeaf(func, func.__name__, desc)
 
     offset = 1 if is_method else 0
-    defaults = align_right(list(args_spec.defaults), len(args_spec.args) - 1) \
+    defaults = align_right(list(args_spec.defaults), len(args_spec.args) - offset) \
         if args_spec.defaults is not None else [None] * len(args_spec.args[offset:])
 
     for index, (name, default) in enumerate(zip(args_spec.args[offset:], defaults)):

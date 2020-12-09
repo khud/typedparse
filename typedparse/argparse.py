@@ -1,9 +1,9 @@
-import typing as ty
 import abc
+import typing as ty
 from argparse import ArgumentParser, Namespace
 
-from typedparse.parser import Parser, ParserFactory
 import typedparse.spec as spec
+from typedparse.parser import Parser, ParserFactory
 
 
 class AbstractArgParser(abc.ABC, Parser):
@@ -44,11 +44,8 @@ class ArgParserLeaf(AbstractArgParser):
 
                     kwargs.update(default=arg.default)
 
-                if tpe == "int":
-                    kwargs.update(type=int)
-
-                if tpe == "float":
-                    kwargs.update(type=float)
+                if tpe != "str":
+                    kwargs.update(type=spec.get_class(tpe))
 
                 self.parser.add_argument(name, help=arg.desc, **kwargs)
 

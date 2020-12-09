@@ -1,5 +1,6 @@
-import unittest
 import typing as ty
+import unittest
+from pathlib import Path
 
 from typedparse.argparse import ArgParserFactory
 
@@ -170,3 +171,19 @@ class TestParserSpec(unittest.TestCase):
         self.assertEqual("test.txt", holder.args["filename"])
         self.assertEqual(10, holder.args["test"])
         self.assertIsNone(holder.args["opt"])
+
+    def test_specific_type(self):
+        holder = ArgsHolder()
+
+        def main(path: Path):
+            """Test path
+
+            Args:
+                path: file path
+            """
+            holder.args["path"] = path
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["test.txt"])
+
+        self.assertEqual(Path("test.txt"), holder.args["path"])

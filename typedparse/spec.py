@@ -1,23 +1,10 @@
+import abc
 import inspect
 import re
-import abc
-from dataclasses import dataclass
 import typing as ty
+from dataclasses import dataclass
 
-# from decorator import decorate
 from docstring_parser import parse
-
-
-# def short(ch: str, arg: str):
-#     def deco(func):
-#         def wrapped(*args, **kwargs):
-#             return func(*args, **kwargs)
-#
-#         result = decorate(func, wrapped)
-#         # result.test = "hello"
-#         return result
-#
-#     return deco
 
 
 @dataclass
@@ -131,3 +118,23 @@ def _is_bool(tpe: str) -> bool:
 def _type(tpe: str) -> str:
     result = re.search(r"<class '(.+)'", tpe)
     return result.group(1) if result else tpe
+
+
+def get_class(class_name):
+    parts = class_name.split('.')
+    module = ".".join(parts[:-1])
+    if module:
+        m = __import__(module)
+        for comp in parts[1:]:
+            m = getattr(m, comp)
+        return m
+    elif class_name == "int":
+        return int
+    elif class_name == "float":
+        return float
+    elif class_name == "bool":
+        return bool
+    elif class_name == "str":
+        return str
+    else:
+        return globals()[class_name]

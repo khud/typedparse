@@ -11,6 +11,11 @@ class ArgsHolder:
         self.args: ty.Dict = {}
 
 
+class MyType:
+    def __init__(self, arg: str):
+        self.arg = arg
+
+
 class TestParserSpec(unittest.TestCase):
     def test_simple_parser(self):
         holder = ArgsHolder()
@@ -187,3 +192,20 @@ class TestParserSpec(unittest.TestCase):
         parser.parse(["test.txt"])
 
         self.assertEqual(Path("test.txt"), holder.args["path"])
+
+    def test_type_in_scope(self):
+        holder = ArgsHolder()
+
+        def main(my: MyType):
+            """Test type in scope
+
+            Args:
+                my: my var
+            """
+            holder.args["my"] = my
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["test"])
+
+        self.assertTrue(isinstance(holder.args["my"], MyType))
+        self.assertEqual("test", holder.args["my"].arg)

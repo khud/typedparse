@@ -27,27 +27,32 @@ class ArgParserLeaf(AbstractArgParser):
         for arg in sp.args:
             name = arg.name if not arg.optional else f"--{arg.name}"
             is_list, in_type = arg.is_list()
-            if arg.tpe == "bool":
-                self.parser.add_argument(name, help=arg.desc, action="store_true")
+
+            kwargs = {}
+
+            if is_list:
+                tpe = in_type
+                kwargs.update(nargs="+")
             else:
-                kwargs = {}
+                tpe = arg.tpe
 
-                if is_list:
-                    tpe = in_type
-                    kwargs.update(nargs="+")
+            if arg.default is not None or arg.optional:
+                if not is_list and tpe != "bool":
+                    kwargs.update(nargs="?")
+
+                kwargs.update(default=arg.default)
+
+            if tpe == "bool":
+                if arg.default:
+                    kwargs.update(action="store_false")
                 else:
-                    tpe = arg.tpe
+                    kwargs.update(action="store_true")
+            else:
+                kwargs.update(type=spec.get_class(tpe))
 
-                if arg.default is not None or arg.optional:
-                    if not is_list:
-                        kwargs.update(nargs="?")
+            flags = [name, f"-{arg.short}"] if arg.short else [name]
 
-                    kwargs.update(default=arg.default)
-
-                if tpe != "str":
-                    kwargs.update(type=spec.get_class(tpe))
-
-                self.parser.add_argument(name, help=arg.desc, **kwargs)
+            self.parser.add_argument(*flags, help=arg.desc, **kwargs)
 
         self.parser.set_defaults(func=func)
 

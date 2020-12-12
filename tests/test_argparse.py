@@ -2,6 +2,7 @@ import typing as ty
 import unittest
 from pathlib import Path
 
+from typedparse import short
 from typedparse.argparse import ArgParserFactory
 
 
@@ -209,3 +210,22 @@ class TestParserSpec(unittest.TestCase):
 
         self.assertTrue(isinstance(holder.args["my"], MyType))
         self.assertEqual("test", holder.args["my"].arg)
+
+    def test_short(self):
+        holder = ArgsHolder()
+
+        @short(number="n")
+        def main(path: str, number: ty.Optional[int] = 10):
+            """Test path
+
+            Args:
+                path: file path
+                number: number of lines
+            """
+            holder.args["path"] = path
+            holder.args["number"] = number
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["test.txt", "-n", "6"])
+
+        self.assertEqual(6, holder.args["number"])

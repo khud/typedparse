@@ -2,6 +2,7 @@ import unittest
 import typing as ty
 
 import typedparse.spec as spec
+from typedparse import short
 
 
 class TestParserSpec(unittest.TestCase):
@@ -117,3 +118,20 @@ class TestParserSpec(unittest.TestCase):
 
         self.assertEqual(spec.Argument(name="key", tpe="str", optional=True,
                                        default="xxx", desc="just a key"), s2.get("key"))
+
+    def test_short(self):
+        @short(number="n")
+        def my_func(filename: str, number: ty.Optional[int] = 0):
+            """My command1
+
+            Args:
+                filename: file path
+                number: number of lines
+            """
+            pass
+
+        s = spec.create(my_func)
+        s = ty.cast(spec.ParserLeaf, s)
+
+        self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
+                                       default=0, desc="number of lines", short="n"), s.get("number"))

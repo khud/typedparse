@@ -14,6 +14,7 @@ class Argument(object):
     optional: bool
     default: ty.Optional[ty.Any]
     desc: str
+    short: ty.Optional[str] = None
 
     def is_list(self) -> (bool, ty.Optional[str]):
         result = re.search(r"typing.List\[(.+)]", self.tpe)
@@ -41,8 +42,8 @@ class ParserLeaf(ParserSpec):
         self.func = func
         self.args: ty.List[Argument] = []
 
-    def add(self, name: str, tpe: str, optional: bool, default: ty.Optional[ty.Any], desc: str):
-        self.args.append(Argument(name, tpe, optional, default, desc))
+    def add(self, arg):
+        self.args.append(arg)
 
     def get(self, name: str) -> ty.Optional[Argument]:
         for arg in self.args:
@@ -53,26 +54,24 @@ class ParserLeaf(ParserSpec):
 
 
 def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
-    # args_spec.defaults should be right-aligned to have the same
-    # dimension as args_spec.args has
-    def align_right(xs: ty.List[ty.Any], n) -> ty.List:
-        indent = [None] * (n - len(xs))
-        return indent + xs
-
-    args_spec = inspect.getfullargspec(func)
+    args_spec = inspect.signature(func)
     doc = parse(inspect.getdoc(func))
     desc = doc.short_description
     spec = ParserLeaf(func, func.__name__, desc)
 
-    offset = 1 if is_method else 0
-    defaults = align_right(list(args_spec.defaults), len(args_spec.args) - offset) \
-        if args_spec.defaults is not None else [None] * len(args_spec.args[offset:])
-
-    for index, (name, default) in enumerate(zip(args_spec.args[offset:], defaults)):
-        tpe = str(args_spec.annotations[name])
+    for index, name in enumerate(args_spec.parameters):
+        tpe = str(args_spec.parameters[name].annotation)
+        default = args_spec.parameters[name].default
+        default = default if default != args_spec.empty else None
         is_opt, in_type = _is_optional(tpe)
-        spec.add(name.replace("_", "-"), in_type or _type(tpe), is_opt, default,
-                 doc.params[index].description)
+        short = func.__short__.get(name, None) if hasattr(func, "__short__") else None
+        spec.add(Argument(name=name.replace("_", "-"),
+                          tpe=in_type or _type(tpe),
+                          optional=is_opt,
+                          default=default,
+                          desc=doc.params[index].description,
+                          short=short
+                          ))
 
     return spec
 

@@ -19,6 +19,14 @@ class ArgParserLeaf(AbstractArgParser):
     def __init__(self, parser: ArgumentParser, sp: spec.ParserLeaf):
         super().__init__(parser)
 
+        def to_bool(s: str) -> bool:
+            if s.lower() in ['yes', 'true', 't', 'y', '1']:
+                return True
+            elif s.lower() in ['no', 'false', 'f', 'n', '0']:
+                return False
+            else:
+                raise ValueError(f"Boolean required but found {s}")
+
         def func(args: Namespace):
             args = vars(args)
             actual_args = [args[a.name] for a in sp.args]
@@ -43,10 +51,16 @@ class ArgParserLeaf(AbstractArgParser):
                 kwargs.update(default=arg.default)
 
             if tpe == "bool":
-                if arg.default:
-                    kwargs.update(action="store_false")
+                if arg.optional:
+                    if arg.default:
+                        kwargs.update(action="store_false")
+                    else:
+                        kwargs.update(action="store_true")
                 else:
-                    kwargs.update(action="store_true")
+                    kwargs.update(type=to_bool)
+
+                    if arg.default:
+                        kwargs.update(nargs="?")
             else:
                 kwargs.update(type=spec.get_class(tpe))
 

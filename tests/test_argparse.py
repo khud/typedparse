@@ -229,3 +229,37 @@ class TestParserSpec(unittest.TestCase):
         parser.parse(["test.txt", "-n", "6"])
 
         self.assertEqual(6, holder.args["number"])
+
+    def test_bool(self):
+        holder = ArgsHolder()
+
+        def main(pos1: bool, pos2: bool = True,
+                 opt1: ty.Optional[bool] = False,
+                 opt2: ty.Optional[bool] = True):
+            """Test path
+
+            Args:
+                pos1: pos1
+                pos2: pos2
+                opt1: opt1
+                opt2: opt2
+            """
+            holder.args["pos1"] = pos1
+            holder.args["pos2"] = pos2
+            holder.args["opt1"] = opt1
+            holder.args["opt2"] = opt2
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["false"])
+
+        self.assertFalse(holder.args["pos1"])
+        self.assertTrue(holder.args["pos2"])
+        self.assertFalse(holder.args["opt1"])
+        self.assertTrue(holder.args["opt2"])
+
+        parser.parse(["false", "false", "--opt1", "--opt2"])
+
+        self.assertFalse(holder.args["pos1"])
+        self.assertFalse(holder.args["pos2"])
+        self.assertTrue(holder.args["opt1"])
+        self.assertFalse(holder.args["opt2"])

@@ -64,7 +64,7 @@ def main(foo: str, bar: ty.Optional[str] = "bar"):
     ...
 ```
 In this example, `foo` is a positional argument, and `bar` is optional with 
-the default value "bar". You can default value for positional arguments too, 
+the default value "bar". You can add default value for positional arguments too, 
 e.g. `def main(foo: str = "foo", ...)`.
 
 ## Types of arguments

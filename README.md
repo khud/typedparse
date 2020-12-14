@@ -1,8 +1,8 @@
 # Typedparse
 What is typedparse? It is a parser for command-line options based on type hints. 
-Typedparse uses the argparse library as the backend. So you don't need to define 
+Typedparse uses the argparse package as the backend. So you don't need to define 
 parsers and subparsers by yourself anymore. Just write clean, typed, and documented 
-code; the library will do all work for you. 
+code; typedparse will do all work for you. 
 
 ```python
 import typedparse
@@ -74,16 +74,60 @@ Or any user-defined class with a constructor that accepts a string argument.
 For example, we can use `Path` instead of `str` type for filenames and paths.
 
 ## Short flags
-To introduce a short flag, one can use a decorator `short` for the functions:
+To introduce a short flag, one can use a decorator `options` for the functions:
 
 ```python
 import typing as ty
 import typedparse
 
-@typedparse.short(bar="b")
+
+@typedparse.options(bar="b")
 def main(foo: str, bar: ty.Optional[str] = "bar"):
     ...
 ```
 Of course, it makes sense only for optional arguments. Now it will work with both 
 `--bar` and `-b` flags.
 
+## Subparsers
+Typedparse supports a hierarchy of parsers in a very natural way. 
+You can combine functions in classes, classes in lists, and dictionaries. 
+Consider the following example:
+
+```python
+import typedparse
+import typing as ty
+
+
+class CliExample:
+    
+    @typedparse.options(email="e")
+    def add(self, name: str, email: ty.Optional[str] = None):
+        """Add user to the database
+
+        Args:
+            name: user's name
+            email: user's email
+        """
+        pass
+
+    def remove(self, name: str):
+        """Remove user from the database
+
+        Args:
+            name: user's name
+        """
+        pass
+
+
+if __name__ == "__main__":
+    typedparse.parse(CliExample())
+```
+There are two commands here:  `add` and `remove` with their own set 
+of arguments. Typical usage will look like:
+
+```bash
+python commands.py add john -e john@mycompany.com
+```
+ 
+So, the `name` parameter will be bound to `john`, and the `email` will 
+be bound to `john@mycompany.com`. 

@@ -5,9 +5,9 @@ from typedparse.argparse import ArgParserFactory
 from typedparse.parser import Parser
 
 
-def short(**kw):
+def options(**kw):
     def decorator(func):
-        func.__short__ = kw
+        func.__options__ = kw
 
         @wraps(func)
         def wrapped(*args, **kwargs):

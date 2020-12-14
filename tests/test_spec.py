@@ -1,8 +1,8 @@
-import unittest
 import typing as ty
+import unittest
 
 import typedparse.spec as spec
-from typedparse import short
+from typedparse import options
 
 
 class TestParserSpec(unittest.TestCase):
@@ -120,7 +120,7 @@ class TestParserSpec(unittest.TestCase):
                                        default="xxx", desc="just a key"), s2.get("key"))
 
     def test_short(self):
-        @short(number="n")
+        @options(number="n")
         def my_func(filename: str, number: ty.Optional[int] = 0):
             """My command1
 
@@ -134,4 +134,4 @@ class TestParserSpec(unittest.TestCase):
         s = ty.cast(spec.ParserLeaf, s)
 
         self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
-                                       default=0, desc="number of lines", short="n"), s.get("number"))
+                                       default=0, desc="number of lines", options="n"), s.get("number"))

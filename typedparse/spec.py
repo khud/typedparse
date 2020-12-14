@@ -14,7 +14,7 @@ class Argument(object):
     optional: bool
     default: ty.Optional[ty.Any]
     desc: str
-    short: ty.Optional[str] = None
+    options: ty.Optional[ty.Any] = None
 
     def is_list(self) -> (bool, ty.Optional[str]):
         result = re.search(r"typing.List\[(.+)]", self.tpe)
@@ -64,13 +64,13 @@ def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
         default = args_spec.parameters[name].default
         default = default if default != args_spec.empty else None
         is_opt, in_type = _is_optional(tpe)
-        short = func.__short__.get(name, None) if hasattr(func, "__short__") else None
+        options = func.__options__.get(name, None) if hasattr(func, "__options__") else None
         spec.add(Argument(name=name.replace("_", "-"),
                           tpe=in_type or _type(tpe),
                           optional=is_opt,
                           default=default,
                           desc=doc.params[index].description,
-                          short=short
+                          options=options
                           ))
 
     return spec

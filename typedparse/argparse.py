@@ -64,7 +64,7 @@ class ArgParserLeaf(AbstractArgParser):
             else:
                 kwargs.update(type=spec.get_class(tpe))
 
-            flags = [name, f"-{arg.short}"] if arg.short else [name]
+            flags = [name, f"-{arg.options}"] if arg.options else [name]
 
             self.parser.add_argument(*flags, help=arg.desc, **kwargs)
 

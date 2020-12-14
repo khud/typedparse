@@ -2,7 +2,7 @@ import typing as ty
 import unittest
 from pathlib import Path
 
-from typedparse import short
+from typedparse import options
 from typedparse.argparse import ArgParserFactory
 
 
@@ -214,7 +214,7 @@ class TestParserSpec(unittest.TestCase):
     def test_short(self):
         holder = ArgsHolder()
 
-        @short(number="n")
+        @options(number="n")
         def main(path: str, number: ty.Optional[int] = 10):
             """Test path
 

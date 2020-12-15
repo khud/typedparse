@@ -5,7 +5,6 @@ import typedparse
 
 class CliExample:
 
-    @typedparse.options(email="e")
     def add(self, name: str, email: ty.Optional[str] = None):
         """Add user to the database
 

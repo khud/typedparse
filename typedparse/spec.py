@@ -20,6 +20,23 @@ class Argument(object):
         result = re.search(r"typing.List\[(.+)]", self.tpe)
         return (True, result.group(1)) if result else (False, None)
 
+    def get_flags(self) -> ty.List[str]:
+        if self.options and isinstance(self.options, ty.Dict):
+            return self._get_flags(self.options["flags"])
+        else:
+            return self._get_flags(self.options)
+
+    def _get_flags(self, options: ty.Optional[ty.Dict]) -> ty.List[str]:
+        name = f"--{self.name}" if self.optional else self.name
+
+        if options:
+            if isinstance(options, list):
+                return options
+            elif isinstance(options, str):
+                return [name, options]
+        else:
+            return [name]
+
 
 class ParserSpec(abc.ABC):
     def __init__(self, name: ty.Optional[str], desc: ty.Optional[str]):

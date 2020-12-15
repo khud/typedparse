@@ -81,7 +81,7 @@ import typing as ty
 import typedparse
 
 
-@typedparse.options(bar="b")
+@typedparse.options(bar="-b")
 def main(foo: str, bar: ty.Optional[str] = "bar"):
     ...
 ```
@@ -100,7 +100,6 @@ import typing as ty
 
 class CliExample:
     
-    @typedparse.options(email="e")
     def add(self, name: str, email: ty.Optional[str] = None):
         """Add user to the database
 

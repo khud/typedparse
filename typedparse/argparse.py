@@ -33,7 +33,6 @@ class ArgParserLeaf(AbstractArgParser):
             sp.func(*actual_args)
 
         for arg in sp.args:
-            name = arg.name if not arg.optional else f"--{arg.name}"
             is_list, in_type = arg.is_list()
 
             kwargs = {}
@@ -64,9 +63,10 @@ class ArgParserLeaf(AbstractArgParser):
             else:
                 kwargs.update(type=spec.get_class(tpe))
 
-            flags = [name, f"-{arg.options}"] if arg.options else [name]
+            flags = arg.get_flags()
+            metavar = arg.name.upper() if arg.optional else arg.name
 
-            self.parser.add_argument(*flags, help=arg.desc, **kwargs)
+            self.parser.add_argument(*flags, help=arg.desc, metavar=metavar, **kwargs)
 
         self.parser.set_defaults(func=func)
 

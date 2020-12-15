@@ -214,7 +214,7 @@ class TestParserSpec(unittest.TestCase):
     def test_short(self):
         holder = ArgsHolder()
 
-        @options(number="n")
+        @options(number="-n")
         def main(path: str, number: ty.Optional[int] = 10):
             """Test path
 

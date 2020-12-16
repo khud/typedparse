@@ -29,7 +29,7 @@ class ArgParserLeaf(AbstractArgParser):
 
         def func(args: Namespace):
             args = vars(args)
-            actual_args = [args[a.name if a.tpe == "bool" else a.get_metavar()] for a in sp.args]
+            actual_args = [args[a.name if a.tpe == "bool" or a.optional else a.get_metavar()] for a in sp.args]
             sp.func(*actual_args)
 
         for arg in sp.args:

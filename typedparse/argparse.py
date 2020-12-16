@@ -29,7 +29,7 @@ class ArgParserLeaf(AbstractArgParser):
 
         def func(args: Namespace):
             args = vars(args)
-            actual_args = [args[a.name] for a in sp.args]
+            actual_args = [args[a.name if a.tpe == "bool" else a.get_metavar()] for a in sp.args]
             sp.func(*actual_args)
 
         for arg in sp.args:
@@ -39,7 +39,7 @@ class ArgParserLeaf(AbstractArgParser):
 
             if is_list:
                 tpe = in_type
-                kwargs.update(nargs="+")
+                kwargs.update(nargs=arg.get_option("nargs") or "+")
             else:
                 tpe = arg.tpe
 
@@ -48,6 +48,9 @@ class ArgParserLeaf(AbstractArgParser):
                     kwargs.update(nargs="?")
 
                 kwargs.update(default=arg.default)
+
+            metavar = arg.get_metavar()
+            metavar = metavar.upper() if arg.optional else metavar
 
             if tpe == "bool":
                 if arg.optional:
@@ -62,11 +65,14 @@ class ArgParserLeaf(AbstractArgParser):
                         kwargs.update(nargs="?")
             else:
                 kwargs.update(type=spec.get_class(tpe))
+                kwargs.update(metavar=metavar)
+
+            if arg.optional:
+                kwargs.update(dest=arg.name)
 
             flags = arg.get_flags()
-            metavar = arg.name.upper() if arg.optional else arg.name
 
-            self.parser.add_argument(*flags, help=arg.desc, metavar=metavar, **kwargs)
+            self.parser.add_argument(*flags, help=arg.desc, **kwargs)
 
         self.parser.set_defaults(func=func)
 

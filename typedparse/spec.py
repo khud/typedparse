@@ -21,8 +21,10 @@ class Argument(object):
         return (True, result.group(1)) if result else (False, None)
 
     def get_flags(self) -> ty.List[str]:
-        if self.options and isinstance(self.options, ty.Dict):
-            return self._get_flags(self.options["flags"])
+        flags_opt = self.get_option("flags")
+
+        if flags_opt:
+            return self._get_flags(flags_opt)
         else:
             return self._get_flags(self.options)
 
@@ -36,6 +38,35 @@ class Argument(object):
                 return [name, options]
         else:
             return [name]
+
+    def get_option(self, key: str) -> ty.Optional[ty.Any]:
+        if self.options and isinstance(self.options, ty.Dict):
+            return self.options[key]
+        else:
+            return None
+
+    def get_metavar(self) -> str:
+        def is_short_flag(flag: str) -> bool:
+            flag = remove_dashes(flag)
+            return len(flag) == 1
+
+        def remove_dashes(flag: str) -> str:
+            n = 0
+            while flag[n] == '-':
+                n += 1
+            return flag[n:]
+
+        flags = self.get_flags()
+
+        if len(flags) == 1:
+            if is_short_flag(flags[0]):
+                return self.name
+            else:
+                return remove_dashes(flags[0])
+
+        if len(flags) == 2:
+            long = flags[0] if is_short_flag(flags[1]) else flags[1]
+            return remove_dashes(long)
 
 
 class ParserSpec(abc.ABC):
@@ -82,7 +113,7 @@ def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
         default = default if default != args_spec.empty else None
         is_opt, in_type = _is_optional(tpe)
         options = func.__options__.get(name, None) if hasattr(func, "__options__") else None
-        spec.add(Argument(name=name.replace("_", "-"),
+        spec.add(Argument(name=name,
                           tpe=in_type or _type(tpe),
                           optional=is_opt,
                           default=default,

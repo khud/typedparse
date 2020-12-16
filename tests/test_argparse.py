@@ -263,3 +263,43 @@ class TestParserSpec(unittest.TestCase):
         self.assertFalse(holder.args["pos2"])
         self.assertTrue(holder.args["opt1"])
         self.assertFalse(holder.args["opt2"])
+
+    def test_flags(self):
+        holder = ArgsHolder()
+
+        @options(number=["-n", "--num"])
+        def main(number: ty.Optional[int] = 10):
+            """Test path
+
+            Args:
+                number: number of lines
+            """
+            holder.args["number"] = number
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["-n", "20"])
+        self.assertEqual(20, holder.args["number"])
+        parser.parse(["--num", "30"])
+        self.assertEqual(30, holder.args["number"])
+
+    def test_nargs(self):
+        holder = ArgsHolder()
+
+        @options(my_list={
+            "flags": ["number"],
+            "nargs": "*"
+        })
+        def main(my_list: ty.List[int]):
+            """Test path
+
+            Args:
+                my_list: a list of numbers
+            """
+            holder.args["my_list"] = my_list
+
+        parser = ArgParserFactory().create(main)
+        parser.parse([])
+        self.assertEqual([], holder.args["my_list"])
+
+        parser.parse(["1", "2", "3"])
+        self.assertEqual([1, 2, 3], holder.args["my_list"])

@@ -88,6 +88,11 @@ def main(foo: str, bar: ty.Optional[str] = "bar"):
 Of course, it makes sense only for optional arguments. Now it will work with both 
 `--bar` and `-b` flags.
 
+To use only the short flag, the simplest way to do it is `@typeparsed.options(bar=["-b"])`. 
+You can also use another name for the long flag by the same trick: `bar=["--box"]`
+or use both `bar=["-b", "--box"]`. It will affect only the command line arguments
+but not the function's formal parameters.
+
 ## Subparsers
 Typedparse supports a hierarchy of parsers in a very natural way. 
 You can combine functions in classes, classes in lists, and dictionaries. 

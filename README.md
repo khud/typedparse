@@ -130,7 +130,7 @@ There are two commands here:  `add` and `remove` with their own set
 of arguments. Typical usage will look like:
 
 ```bash
-python commands.py add john -e john@mycompany.com
+python commands.py add john --email john@mycompany.com
 ```
  
 So, the `name` parameter will be bound to `john`, and the `email` will 

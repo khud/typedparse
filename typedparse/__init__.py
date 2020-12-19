@@ -14,6 +14,7 @@ def options(**kw):
             return func(*args, **kwargs)
 
         return wrapped
+
     return decorator
 
 

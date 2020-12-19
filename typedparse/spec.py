@@ -41,7 +41,7 @@ class Argument(object):
 
     def get_option(self, key: str) -> ty.Optional[ty.Any]:
         if self.options and isinstance(self.options, ty.Dict):
-            return self.options[key]
+            return self.options.get(key, None)
         else:
             return None
 
@@ -55,6 +55,11 @@ class Argument(object):
             while flag[n] == '-':
                 n += 1
             return flag[n:]
+
+        metavar = self.get_option("metavar")
+
+        if metavar:
+            return metavar
 
         flags = self.get_flags()
 
@@ -101,7 +106,7 @@ class ParserLeaf(ParserSpec):
         return None
 
 
-def _create_from_function(func: ty.Callable, is_method: bool) -> ParserLeaf:
+def _create_from_function(func: ty.Callable) -> ParserLeaf:
     args_spec = inspect.signature(func)
     doc = parse(inspect.getdoc(func))
     desc = doc.short_description
@@ -130,7 +135,7 @@ def _create_from_object(obj: object) -> ParserNode:
 
     for k, v in inspect.getmembers(obj):
         if inspect.ismethod(v) and k != "__init__":
-            spec.add(_create_from_function(v, is_method=True))
+            spec.add(_create_from_function(v))
 
     return spec
 
@@ -146,7 +151,7 @@ def _create_from_list(obj: list) -> ParserNode:
 
 def create(obj: ty.Any) -> ParserSpec:
     if isinstance(obj, ty.Callable):
-        return _create_from_function(obj, is_method=False)
+        return _create_from_function(obj)
     elif isinstance(obj, list):
         return _create_from_list(obj)
     elif isinstance(obj, object):

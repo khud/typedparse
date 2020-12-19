@@ -8,10 +8,10 @@ from typedparse.parser import Parser, ParserFactory
 
 class AbstractArgParser(abc.ABC, Parser):
     def __init__(self, parser: ArgumentParser):
-        self.parser = parser
+        self._parser = parser
 
     def parse(self, args: ty.Optional[ty.List[str]] = None):
-        args = self.parser.parse_args(args)
+        args = self._parser.parse_args(args)
         args.func(args)
 
 
@@ -52,6 +52,8 @@ class ArgParserLeaf(AbstractArgParser):
             metavar = arg.get_metavar()
             metavar = metavar.upper() if arg.optional else metavar
 
+            type_func = arg.get_option("type")
+
             if tpe == "bool":
                 if arg.optional:
                     if arg.default:
@@ -59,12 +61,12 @@ class ArgParserLeaf(AbstractArgParser):
                     else:
                         kwargs.update(action="store_true")
                 else:
-                    kwargs.update(type=to_bool)
+                    kwargs.update(type=type_func or to_bool)
 
                     if arg.default:
                         kwargs.update(nargs="?")
             else:
-                kwargs.update(type=spec.get_class(tpe))
+                kwargs.update(type=type_func or spec.get_class(tpe))
                 kwargs.update(metavar=metavar)
 
             if arg.optional:
@@ -72,15 +74,15 @@ class ArgParserLeaf(AbstractArgParser):
 
             flags = arg.get_flags()
 
-            self.parser.add_argument(*flags, help=arg.desc, **kwargs)
+            self._parser.add_argument(*flags, help=arg.desc, **kwargs)
 
-        self.parser.set_defaults(func=func)
+        self._parser.set_defaults(func=func)
 
 
 class ArgParserNode(AbstractArgParser):
     def __init__(self, parser: ArgumentParser, sp: spec.ParserNode):
         super().__init__(parser)
-        sub = self.parser.add_subparsers()
+        sub = self._parser.add_subparsers()
         for child in sp.children:
             parser = sub.add_parser(child.name)
             factory = ArgParserFactory(parser)
@@ -89,15 +91,15 @@ class ArgParserNode(AbstractArgParser):
 
 class ArgParserFactory(ParserFactory):
     def __init__(self, parser: ty.Optional[ArgumentParser] = None):
-        self.parser = parser or ArgumentParser()
+        self._parser = parser or ArgumentParser()
 
     def create(self, obj: ty.Any) -> Parser:
         if not isinstance(obj, spec.ParserSpec):
             obj = spec.create(obj)
 
         if isinstance(obj, spec.ParserLeaf):
-            return ArgParserLeaf(self.parser, obj)
+            return ArgParserLeaf(self._parser, obj)
         elif isinstance(obj, spec.ParserNode):
-            return ArgParserNode(self.parser, obj)
+            return ArgParserNode(self._parser, obj)
         else:
             raise ValueError(obj)

@@ -18,5 +18,5 @@ def options(**kw):
     return decorator
 
 
-def parse(obj: ty.Any):
-    return ArgParserFactory().create(obj).parse()
+def parse(obj: ty.Any, generate_short_flags: bool = False):
+    return ArgParserFactory(generate_short_flags=generate_short_flags).create(obj).parse()

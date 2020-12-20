@@ -17,7 +17,7 @@ class MyType:
         self.arg = arg
 
 
-class TestParserSpec(unittest.TestCase):
+class TestArgParse(unittest.TestCase):
     def test_simple_parser(self):
         holder = ArgsHolder()
 

@@ -46,15 +46,10 @@ class Argument(object):
             return None
 
     def get_metavar(self) -> str:
-        def is_short_flag(flag: str) -> bool:
-            flag = remove_dashes(flag)
-            return len(flag) == 1
+        this = self
 
-        def remove_dashes(flag: str) -> str:
-            n = 0
-            while flag[n] == '-':
-                n += 1
-            return flag[n:]
+        def remove_dashes(long_flag: str) -> str:
+            return long_flag[2:] if this.optional else long_flag
 
         metavar = self.get_option("metavar")
 
@@ -64,13 +59,14 @@ class Argument(object):
         flags = self.get_flags()
 
         if len(flags) == 1:
-            if is_short_flag(flags[0]):
+            if len(flags[0]) == 1:
                 return self.name
             else:
-                return remove_dashes(flags[0])
+                long = flags[0]
+                return remove_dashes(long)
 
         if len(flags) == 2:
-            long = flags[0] if is_short_flag(flags[1]) else flags[1]
+            long = flags[0] if len(flags[1]) == 1 else flags[1]
             return remove_dashes(long)
 
 

@@ -303,3 +303,55 @@ class TestArgParse(unittest.TestCase):
 
         parser.parse(["1", "2", "3"])
         self.assertEqual([1, 2, 3], holder.args["my_list"])
+
+    def test_type_func(self):
+        holder = ArgsHolder()
+
+        def smart_int(s: str) -> int:
+            if s.startswith("0x"):
+                return int(s, 16)
+            elif s.startswith("0"):
+                return int(s, 8)
+
+            return int(s, 10)
+
+        @options(test={
+            "type": smart_int
+        })
+        def main(test: ty.Optional[int] = 0):
+            """Test
+
+            Args:
+                test: a test
+            """
+            holder.args["test"] = test
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["--test", "0xFF"])
+        self.assertEqual(255, holder.args["test"])
+
+    def test_generate_short_flags(self):
+        holder = ArgsHolder()
+
+        def main(foo: str = "qqq", bar: ty.Optional[bool] = False, baz: ty.Optional[bool] = False):
+            """Test
+
+            Args:
+                foo: foo
+                bar: bar
+                baz: baz
+            """
+            holder.args["foo"] = foo
+            holder.args["bar"] = bar
+            holder.args["baz"] = baz
+
+        parser = ArgParserFactory(generate_short_flags=True).create(main)
+        parser.parse(["test", "-b"])
+        self.assertEqual("test", holder.args["foo"])
+        self.assertTrue(holder.args["bar"])
+        self.assertFalse(holder.args["baz"])
+
+        parser.parse(["-a"])
+        self.assertEqual("qqq", holder.args["foo"])
+        self.assertFalse(holder.args["bar"])
+        self.assertTrue(holder.args["baz"])

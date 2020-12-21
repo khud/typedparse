@@ -36,8 +36,8 @@ class Argument(object):
                 return options
             elif isinstance(options, str):
                 return [name, options]
-        else:
-            return [name]
+
+        return [name]
 
     def get_option(self, key: str) -> ty.Optional[ty.Any]:
         if self.options and isinstance(self.options, ty.Dict):

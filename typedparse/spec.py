@@ -140,7 +140,10 @@ def _create_from_list(obj: list) -> ParserNode:
     spec = ParserNode()
 
     for child in obj:
-        spec.add(_create_from_object(child))
+        if isinstance(child, ty.Callable):
+            spec.add(_create_from_function(child))
+        elif isinstance(child, object):
+            spec.add(_create_from_object(child))
 
     return spec
 

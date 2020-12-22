@@ -89,35 +89,56 @@ class TestParserSpec(unittest.TestCase):
                 """
                 pass
 
-        s = spec.create(CLI())
-        self.assertTrue(isinstance(s, spec.ParserNode))
+        def command1(filename: str, number: ty.Optional[int] = 0):
+            """My command1
 
-        s = ty.cast(spec.ParserNode, s)
-        self.assertEqual(2, len(s.children))
+            Args:
+                filename: file path
+                number: number of lines
+            """
+            pass
 
-        s1 = s.children[0]
-        s2 = s.children[1]
+        def command2(test: bool = False, key: ty.Optional[str] = "xxx"):
+            """My command2
 
-        self.assertTrue(isinstance(s1, spec.ParserLeaf))
-        self.assertTrue(isinstance(s2, spec.ParserLeaf))
+            Args:
+                test: test mode
+                key: just a key
+            """
+            pass
 
-        self.assertEqual("command1", s1.name)
-        self.assertEqual("command2", s2.name)
+        def check_spec(s: spec.ParserSpec):
+            self.assertTrue(isinstance(s, spec.ParserNode))
 
-        s1 = ty.cast(spec.ParserLeaf, s1)
-        s2 = ty.cast(spec.ParserLeaf, s2)
+            s = ty.cast(spec.ParserNode, s)
+            self.assertEqual(2, len(s.children))
 
-        self.assertEqual(spec.Argument(name="filename", tpe="str", optional=False,
-                                       default=None, desc="file path"), s1.get("filename"))
+            s1 = s.children[0]
+            s2 = s.children[1]
 
-        self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
-                                       default=0, desc="number of lines"), s1.get("number"))
+            self.assertTrue(isinstance(s1, spec.ParserLeaf))
+            self.assertTrue(isinstance(s2, spec.ParserLeaf))
 
-        self.assertEqual(spec.Argument(name="test", tpe="bool", optional=False,
-                                       default=False, desc="test mode"), s2.get("test"))
+            self.assertEqual("command1", s1.name)
+            self.assertEqual("command2", s2.name)
 
-        self.assertEqual(spec.Argument(name="key", tpe="str", optional=True,
-                                       default="xxx", desc="just a key"), s2.get("key"))
+            s1 = ty.cast(spec.ParserLeaf, s1)
+            s2 = ty.cast(spec.ParserLeaf, s2)
+
+            self.assertEqual(spec.Argument(name="filename", tpe="str", optional=False,
+                                           default=None, desc="file path"), s1.get("filename"))
+
+            self.assertEqual(spec.Argument(name="number", tpe="int", optional=True,
+                                           default=0, desc="number of lines"), s1.get("number"))
+
+            self.assertEqual(spec.Argument(name="test", tpe="bool", optional=False,
+                                           default=False, desc="test mode"), s2.get("test"))
+
+            self.assertEqual(spec.Argument(name="key", tpe="str", optional=True,
+                                           default="xxx", desc="just a key"), s2.get("key"))
+
+        check_spec(spec.create(CLI()))
+        check_spec(spec.create([command1, command2]))
 
     def test_short(self):
         @options(number="n")

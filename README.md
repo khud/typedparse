@@ -95,7 +95,7 @@ parameters.
 ## Subparsers
 
 Typedparse supports a hierarchy of parsers in a very natural way. You can combine functions in classes, classes in
-lists, and dictionaries. Consider the following example:
+lists. Consider the following example:
 
 ```python
 import typedparse

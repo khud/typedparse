@@ -180,3 +180,34 @@ def main(numbers: ty.List[int]):
     """
     ...
 ```
+
+## Custom types
+
+If you want to parse arguments to your own types, you can do that 
+in the following manner:
+
+```python
+import typedparse
+import typing as ty
+
+def to_int(s: str) -> int:
+    if s.startswith("0x"):
+        return int(s, 16)
+    elif s.startswith("0"):
+        return int(s, 8)
+
+    return int(s, 10)
+
+@typedparse.options(test={
+    "type": to_int
+})
+def main(test: ty.Optional[int] = 0):
+    """Test
+
+    Args:
+        test: a test
+    """
+    ...
+```
+In this example, we use a custom function to convert string arguments to integers, 
+which supports hexadecimal and octal representations.

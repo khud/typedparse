@@ -2,7 +2,6 @@ import typing as ty
 from functools import wraps
 
 from typedparse.argparse import ArgParserFactory
-from typedparse.parser import Parser
 
 
 def options(**kw):

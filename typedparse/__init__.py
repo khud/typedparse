@@ -21,7 +21,7 @@ def parse(obj: ty.Any, generate_short_flags: bool = False):
     """Parse command line arguments by specification.
 
     Args:
-        obj: An object which specifies a mapping of the arguments. It can be a function, a class or a list.
+        obj: An object which specifies a mapping of the arguments. It can be a function, a class, an object or a list.
         generate_short_flags: Generate short flags for all optional formal parameters.
     """
     return ArgParserFactory(generate_short_flags=generate_short_flags).create(obj).parse()

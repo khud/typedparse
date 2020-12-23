@@ -69,8 +69,8 @@ class TestParserSpec(unittest.TestCase):
         self.assertEqual(spec.Argument(name="files", tpe="typing.List[str]", optional=False,
                                        default=None, desc="list of files"), s.get("files"))
 
-    def test_spec_from_object(self):
-        class CLI(object):
+    def test_spec_from_list_class_or_object(self):
+        class CLI:
             def command1(self, filename: str, number: ty.Optional[int] = 0):
                 """My command1
 
@@ -138,6 +138,7 @@ class TestParserSpec(unittest.TestCase):
                                            default="xxx", desc="just a key"), s2.get("key"))
 
         check_spec(spec.create(CLI()))
+        check_spec(spec.create(CLI))
         check_spec(spec.create([command1, command2]))
 
     def test_short(self):

@@ -149,7 +149,10 @@ def _create_from_list(obj: list) -> ParserNode:
 
 
 def create(obj: ty.Any) -> ParserSpec:
-    if isinstance(obj, ty.Callable):
+    if inspect.isclass(obj):
+        obj = obj()
+        return _create_from_object(obj)
+    elif isinstance(obj, ty.Callable):
         return _create_from_function(obj)
     elif isinstance(obj, list):
         return _create_from_list(obj)

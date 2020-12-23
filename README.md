@@ -1,15 +1,15 @@
 # Typedparse
 
-What is typedparse? It is a parser for command-line options based on type hints. Typedparse uses the argparse package as
-the backend. So you don't need to define parsers and subparsers by yourself anymore. Just write clean, typed, and
-documented code; typedparse will do all work for you.
+What is typedparse? It is a small parser for command-line options based on type hints. Typedparse uses the argparse
+package as the backend. So you don't need to define parsers and subparsers by yourself anymore. Just write clean, typed,
+and documented code; typedparse will do all work for you.
 
 ```python
 import typedparse
-import typing as ty
+from typing import Optional
 
 
-def main(file: str, number: ty.Optional[int] = 6):
+def main(file: str, number: Optional[int] = 6):
     """Display first lines of a file.
 
     Args:
@@ -22,12 +22,13 @@ def main(file: str, number: ty.Optional[int] = 6):
 
 
 if __name__ == "__main__":
-    typedparse.parse(main)
+    typedparse.parse(main, generate_short_flags=True)
 ```
 
 Here is a small example that emulates the standard `head` command. Here you need only specify types and default values
 for the function's formal parameters and pass them into the `parse` function. You also have to specify the docstring for
-the function it will be used to generate help. That's it.
+the function it will be used to generate help. In this case we also use `generate_short_flags=True` to generate short flags.
+That's it.
 
 If we run the program with one argument `-h` or `--help`, it produces the following output:
 
@@ -35,17 +36,26 @@ If we run the program with one argument `-h` or `--help`, it produces the follow
 usage: head.py [-h] [--number [NUMBER]] file
 
 positional arguments:
-  file               file to display
+  file                  file to display
 
 optional arguments:
-  -h, --help         show this help message and exit
-  --number [NUMBER]  number of lines to display
+  -h, --help            show this help message and exit
+  --number [NUMBER], -n [NUMBER]
+                        number of lines to display
 ```
 
 Typedparse heavily relies on not only type hints but [docstring_parser](https://github.com/rr-/docstring_parser)
 package. So it supports all popular documentation styles, but you need to be sure your docstring is well-formed
 according to the style you chose. This means you can skip the long description but can't skip the short one and
 parameters' description.
+
+## Installation
+
+Typedparse is available as a regular PyPI package. To install it, simply type:
+
+```bash
+pip install typedparse
+```
 
 ## Positional and optional arguments
 
@@ -54,10 +64,10 @@ different because it allows for a default value. In typedparse, we use Optional 
 optional arguments:
 
 ```python
-import typing as ty
+from typing import Optional
 
 
-def main(foo: str, bar: ty.Optional[str] = "bar"):
+def main(foo: str, bar: Optional[str] = "bar"):
     ...
 ```
 
@@ -75,22 +85,29 @@ For example, we can use `Path` instead of `str` type for filenames and paths.
 To introduce a short flag, one can use a decorator `options` for the functions:
 
 ```python
-import typing as ty
 import typedparse
+from typing import Optional
 
 
 @typedparse.options(bar="-b")
-def main(foo: str, bar: ty.Optional[str] = "bar"):
+def main(foo: str, bar: Optional[str] = "bar"):
     ...
 ```
 
 Of course, it makes sense only for optional arguments. Now it will work with both
 `--bar` and `-b` flags.
 
-To use only the short flag, the simplest way to do it is `@options(bar=["-b"])`. You can also use another
-name for the long flag by the same trick: `bar=["--box"]`
+To use only the short flag, the simplest way to do it is `@options(bar=["-b"])`. You can also use another name for the
+long flag by the same trick: `bar=["--box"]`
 or use both `bar=["-b", "--box"]`. It will affect only the command line arguments but not the function's formal
 parameters.
+
+There is an option to generate short flags automatically for all optional arguments. To do so
+use `generate_short_flags=True` as the second argument in `parse` function.
+
+Of course, you can combine both methods. In this case, the generator will use information about used flags during the
+generating process. The general algorithm tries to use the first character of the formal parameter as a short flag. If
+the flag is in use, it tries to use the second character and so on.
 
 ## Subparsers
 
@@ -99,27 +116,16 @@ lists. Consider the following example:
 
 ```python
 import typedparse
-import typing as ty
+from typing import Optional
 
 
 class CliExample:
 
-    def add(self, name: str, email: ty.Optional[str] = None):
-        """Add user to the database
-
-        Args:
-            name: user's name
-            email: user's email
-        """
-        pass
+    def add(self, name: str, email: Optional[str] = None):
+        ...
 
     def remove(self, name: str):
-        """Remove user from the database
-
-        Args:
-            name: user's name
-        """
-        pass
+        ...
 
 
 if __name__ == "__main__":
@@ -139,15 +145,10 @@ So, the `name` parameter will be bound to `john`, and the `email` will be bound 
 List arguments are supported out of the box in typedparse:
 
 ```python
-import typing as ty
+from typing import List
 
 
-def main(numbers: ty.List[int]):
-    """My brand new CLI
-
-    Args:
-        numbers: a list of numbers
-    """
+def main(numbers: List[int]):
     ...
 ```
 
@@ -159,20 +160,20 @@ But there are two possible issues here:
   (meta variable in terms of argparse) the same as the corresponding formal parameter. It will look
   like `numbers [numbers ...]` if we would try to display help.
 
-How to manage that? For the second case, we can rename the formal parameter or
-use `@options(flags=["number"])` to make it singular. If we want to allow an empty list, we can specify it in
-the following way `@options(numbers={"nargs": "*"})`. We also can combine these two options if we want:
+How to manage that? For the second case, we can rename the formal parameter or use `@options(flags=["number"])` to make
+it singular. If we want to allow an empty list, we can specify it in the following
+way `@options(numbers={"nargs": "*"})`. We also can combine these two options if we want:
 
 ```python
 import typedparse
-import typing as ty
+from typing import List
 
 
 @typedparse.options(numbers={
     "flags": ["number"],
     "nargs": "*"
 })
-def main(numbers: ty.List[int]):
+def main(numbers: List[int]):
     """My brand new CLI
 
     Args:
@@ -183,12 +184,12 @@ def main(numbers: ty.List[int]):
 
 ## Custom types
 
-If you want to parse arguments to your own types, you can do that 
-in the following manner:
+If you want to parse arguments to your own types, you can do that in the following manner:
 
 ```python
 import typedparse
-import typing as ty
+from typing import Optional
+
 
 def to_int(s: str) -> int:
     if s.startswith("0x"):
@@ -198,16 +199,13 @@ def to_int(s: str) -> int:
 
     return int(s, 10)
 
+
 @typedparse.options(test={
     "type": to_int
 })
-def main(test: ty.Optional[int] = 0):
-    """Test
-
-    Args:
-        test: a test
-    """
+def main(test: Optional[int] = 0):
     ...
 ```
-In this example, we use a custom function to convert string arguments to integers, 
-which supports hexadecimal and octal representations.
+
+In this example, we use a custom function to convert string arguments to integers, which supports hexadecimal and octal
+representations.

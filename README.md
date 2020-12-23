@@ -140,6 +140,23 @@ python commands.py add john --email john@mycompany.com
 
 So, the `name` parameter will be bound to `john`, and the `email` will be bound to `john@mycompany.com`.
 
+Actually, you don't need a class if you want to create sub-commands. You can use 
+a list of functions instead:
+
+```python
+import typedparse
+from typing import Optional
+
+def add(self, name: str, email: Optional[str] = None):
+    ...
+
+def remove(self, name: str):
+    ...
+
+if __name__ == "__main__":
+    typedparse.parse([add, remove])
+```
+
 ## List arguments
 
 List arguments are supported out of the box in typedparse:

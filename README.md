@@ -147,10 +147,10 @@ a list of functions instead:
 import typedparse
 from typing import Optional
 
-def add(self, name: str, email: Optional[str] = None):
+def add(name: str, email: Optional[str] = None):
     ...
 
-def remove(self, name: str):
+def remove(name: str):
     ...
 
 if __name__ == "__main__":

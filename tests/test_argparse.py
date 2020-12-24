@@ -42,6 +42,7 @@ class TestArgParse(unittest.TestCase):
             def __init__(self, args_holder: ArgsHolder):
                 self.holder = args_holder
 
+            @options(number="-n")
             def command1(self, filename: str, float_number: float, number: ty.Optional[int] = 0):
                 """My command1
 
@@ -68,7 +69,7 @@ class TestArgParse(unittest.TestCase):
 
         holder = ArgsHolder()
         parser = ArgParserFactory().create(CLI(holder))
-        parser.parse(["command1", "hello.txt", "11.4", "--number", "10"])
+        parser.parse(["command1", "hello.txt", "11.4", "-n", "10"])
 
         self.assertEqual("command1", holder.command)
         self.assertEqual("hello.txt", holder.args["filename"])

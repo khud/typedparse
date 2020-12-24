@@ -130,7 +130,7 @@ def _create_from_object(obj: object) -> ParserNode:
     spec = ParserNode(obj.__class__.__name__.lower(), desc)
 
     for k, v in inspect.getmembers(obj):
-        if inspect.ismethod(v) and k != "__init__":
+        if inspect.ismethod(v) and not k.startswith("_"):
             spec.add(_create_from_function(v))
 
     return spec

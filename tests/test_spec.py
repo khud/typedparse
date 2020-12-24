@@ -89,6 +89,9 @@ class TestParserSpec(unittest.TestCase):
                 """
                 pass
 
+            def _my_protected_method(self):
+                pass
+
         def command1(filename: str, number: ty.Optional[int] = 0):
             """My command1
 

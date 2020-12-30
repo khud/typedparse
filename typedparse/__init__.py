@@ -1,7 +1,7 @@
 import typing as ty
 from functools import wraps
 
-from typedparse.argparse import ArgParserFactory
+from typedparse.argparse import ArgParserFactory, ArgParserOptions
 
 
 def options(**kw):
@@ -25,5 +25,7 @@ def parse(obj: ty.Any, generate_short_flags: bool = False, snake_case_flags: boo
         generate_short_flags: Generate short flags for all optional formal parameters, false by default.
         snake_case_flags: Use snake case instead of kebab case for long flags, false default.
     """
-    return ArgParserFactory(generate_short_flags=generate_short_flags,
-                            snake_case_flags=snake_case_flags).create(obj).parse()
+    return ArgParserFactory(ArgParserOptions(
+        generate_short_flags=generate_short_flags,
+        snake_case_flags=snake_case_flags
+    )).create(obj).parse()

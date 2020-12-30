@@ -3,7 +3,7 @@ import unittest
 from pathlib import Path
 
 from typedparse import options
-from typedparse.argparse import ArgParserFactory
+from typedparse.argparse import ArgParserFactory, ArgParserOptions
 
 
 class ArgsHolder:
@@ -346,7 +346,7 @@ class TestArgParse(unittest.TestCase):
             holder.args["bar"] = bar
             holder.args["baz"] = baz
 
-        parser = ArgParserFactory(generate_short_flags=True).create(main)
+        parser = ArgParserFactory(ArgParserOptions(generate_short_flags=True)).create(main)
         parser.parse(["test", "-b"])
         self.assertEqual("test", holder.args["foo"])
         self.assertTrue(holder.args["bar"])
@@ -373,7 +373,7 @@ class TestArgParse(unittest.TestCase):
 
         self.assertEqual("test", holder.args["my_long_flag"])
 
-        parser = ArgParserFactory(snake_case_flags=True).create(main)
+        parser = ArgParserFactory(ArgParserOptions(snake_case_flags=True)).create(main)
         parser.parse(["--my_long_flag", "test"])
 
         self.assertEqual("test", holder.args["my_long_flag"])

@@ -356,3 +356,24 @@ class TestArgParse(unittest.TestCase):
         self.assertEqual("qqq", holder.args["foo"])
         self.assertFalse(holder.args["bar"])
         self.assertTrue(holder.args["baz"])
+
+    def test_snake_and_kebab_case(self):
+        holder = ArgsHolder()
+
+        def main(my_long_flag: ty.Optional[str]):
+            """My brand-new CLI
+
+            Args:
+                my_long_flag: my long flag
+            """
+            holder.args["my_long_flag"] = my_long_flag
+
+        parser = ArgParserFactory().create(main)
+        parser.parse(["--my-long-flag", "test"])
+
+        self.assertEqual("test", holder.args["my_long_flag"])
+
+        parser = ArgParserFactory(snake_case_flags=True).create(main)
+        parser.parse(["--my_long_flag", "test"])
+
+        self.assertEqual("test", holder.args["my_long_flag"])

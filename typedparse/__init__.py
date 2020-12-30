@@ -17,11 +17,13 @@ def options(**kw):
     return decorator
 
 
-def parse(obj: ty.Any, generate_short_flags: bool = False):
+def parse(obj: ty.Any, generate_short_flags: bool = False, snake_case_flags: bool = False):
     """Parse command line arguments by specification.
 
     Args:
         obj: An object which specifies a mapping of the arguments. It can be a function, a class, an object or a list.
-        generate_short_flags: Generate short flags for all optional formal parameters.
+        generate_short_flags: Generate short flags for all optional formal parameters, false by default.
+        snake_case_flags: Use snake case instead of kebab case for long flags, false default.
     """
-    return ArgParserFactory(generate_short_flags=generate_short_flags).create(obj).parse()
+    return ArgParserFactory(generate_short_flags=generate_short_flags,
+                            snake_case_flags=snake_case_flags).create(obj).parse()

@@ -17,7 +17,9 @@ class AbstractArgParser(abc.ABC, Parser):
 
 
 class ArgParserLeaf(AbstractArgParser):
-    def __init__(self, parser: ArgumentParser, sp: spec.ParserLeaf, generate_short_flags: bool):
+    def __init__(self, parser: ArgumentParser, sp: spec.ParserLeaf,
+                 generate_short_flags: bool,
+                 snake_case_flags: bool):
         super().__init__(parser)
 
         used_short_flags = []
@@ -100,9 +102,13 @@ class ArgParserLeaf(AbstractArgParser):
                     short = generate_short(flags[0])
                     flags.append(f"-{short}")
 
-            for flag in flags:
-                if len(flag) == 2:
+            for i in range(0, len(flags)):
+                flag = flags[i]
+
+                if len(flag) == 2 and flag.startswith("-"):
                     used_short_flags.append(flag[1:])
+                elif arg.optional:
+                    flags[i] = flag if snake_case_flags else flag.replace("_", "-")
 
             self._parser.add_argument(*flags, help=arg.desc, **kwargs)
 
@@ -110,27 +116,32 @@ class ArgParserLeaf(AbstractArgParser):
 
 
 class ArgParserNode(AbstractArgParser):
-    def __init__(self, parser: ArgumentParser, sp: spec.ParserNode, generate_short_flags: bool):
+    def __init__(self, parser: ArgumentParser, sp: spec.ParserNode,
+                 generate_short_flags: bool,
+                 snake_case_flags: bool):
         super().__init__(parser)
         sub = self._parser.add_subparsers()
         for child in sp.children:
             parser = sub.add_parser(child.name)
-            factory = ArgParserFactory(parser, generate_short_flags)
+            factory = ArgParserFactory(parser, generate_short_flags, snake_case_flags)
             factory.create(child)
 
 
 class ArgParserFactory(ParserFactory):
-    def __init__(self, parser: ty.Optional[ArgumentParser] = None, generate_short_flags: bool = False):
+    def __init__(self, parser: ty.Optional[ArgumentParser] = None,
+                 generate_short_flags: bool = False,
+                 snake_case_flags: bool = False):
         self._parser = parser or ArgumentParser()
         self._generate_short_flags = generate_short_flags
+        self._snake_case_flags = snake_case_flags
 
     def create(self, obj: ty.Any) -> Parser:
         if not isinstance(obj, spec.ParserSpec):
             obj = spec.create(obj)
 
         if isinstance(obj, spec.ParserLeaf):
-            return ArgParserLeaf(self._parser, obj, self._generate_short_flags)
+            return ArgParserLeaf(self._parser, obj, self._generate_short_flags, self._snake_case_flags)
         elif isinstance(obj, spec.ParserNode):
-            return ArgParserNode(self._parser, obj, self._generate_short_flags)
+            return ArgParserNode(self._parser, obj, self._generate_short_flags, self._snake_case_flags)
         else:
             raise ValueError(obj)

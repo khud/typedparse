@@ -162,6 +162,10 @@ def create(obj: ty.Any) -> ParserSpec:
 
 def _is_optional(tpe: str) -> (bool, ty.Optional[str]):
     result = re.search(r"typing.Union\[(.+), NoneType]", tpe)
+
+    if not result:
+        result = re.search(r"typing.Optional\[(.+)]", tpe)
+
     return (True, result.group(1)) if result else (False, None)
 
 

@@ -1,6 +1,6 @@
 # Typedparse
 
-What is typedparse? It is a small parser for command-line options based on type hints. Typedparse uses the argparse
+What is typedparse? It is a lightweight parser for command-line options based on type hints. Typedparse uses the argparse
 package as the backend. So you don't need to define parsers and subparsers by yourself anymore. Just write clean, typed,
 and documented code; typedparse will do all work for you.
 
@@ -132,13 +132,18 @@ if __name__ == "__main__":
     typedparse.parse(CliExample())
 ```
 
-There are two commands here:  `add` and `remove` with their own set of arguments. Typical usage will look like:
+There are two commands here:  `add` and `remove` with their own set of arguments. 
+*Methods started from underscore will be ignored by the parser*. Typical usage will look like:
 
 ```bash
 python commands.py add john --email john@mycompany.com
 ```
 
 So, the `name` parameter will be bound to `john`, and the `email` will be bound to `john@mycompany.com`.
+If the class construction doesn't have parameters, you can pass the class itself 
+into the `parse` function instead of the object: `typedparse.parse(CliExample)`.
+
+Methods 
 
 Actually, you don't need a class if you want to create sub-commands. You can use 
 a list of functions instead:
@@ -226,3 +231,9 @@ def main(test: Optional[int] = 0):
 
 In this example, we use a custom function to convert string arguments to integers, which supports hexadecimal and octal
 representations.
+
+## Kebab case vs. snake case arguments
+
+From the version 0.2 typedparse uses kebab case by for long optional flags, so 
+`my_long_flag: Optional[bool]` will become `--my-long-flag`. You can use snake case,
+if you want by setting `snake_case_flags` to true in the `parse` function.

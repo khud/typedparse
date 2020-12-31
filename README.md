@@ -234,6 +234,6 @@ representations.
 
 ## Kebab case vs. snake case arguments
 
-From the version 0.2 typedparse uses kebab case by for long optional flags, so 
+From the version 0.2 typedparse uses kebab case for long optional flags, so 
 `my_long_flag: Optional[bool]` will become `--my-long-flag`. You can use snake case,
 if you want by setting `snake_case_flags` to true in the `parse` function.

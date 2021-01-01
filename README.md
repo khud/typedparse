@@ -176,7 +176,7 @@ def main(numbers: List[int]):
 
 But there are two possible issues here:
 
-- By default, the number of arguments in the list is more than one. This is equivalent to `nargs="+"` in argparse
+- By default, the number of arguments in the list is at least one. This is equivalent to `nargs="+"` in argparse
   package.
 - It may be inconvenient to have the displayed name
   (meta variable in terms of argparse) the same as the corresponding formal parameter. It will look

@@ -109,6 +109,14 @@ def _create_from_function(func: ty.Callable) -> ParserLeaf:
     spec = ParserLeaf(func, func.__name__, desc)
 
     for index, name in enumerate(args_spec.parameters):
+        if index >= len(doc.params):
+            raise ValueError(f"Missing description of '{name}'")
+
+        param = doc.params[index]
+
+        if param.arg_name != name:
+            raise ValueError(f"Expected description of '{name}' but found '{param.arg_name}'")
+
         tpe = str(args_spec.parameters[name].annotation)
         default = args_spec.parameters[name].default
         default = default if default != args_spec.empty else None
@@ -118,7 +126,7 @@ def _create_from_function(func: ty.Callable) -> ParserLeaf:
                           tpe=in_type or _type(tpe),
                           optional=is_opt,
                           default=default,
-                          desc=doc.params[index].description,
+                          desc=param.description,
                           options=options
                           ))
 

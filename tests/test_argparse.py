@@ -393,3 +393,33 @@ class TestArgParse(unittest.TestCase):
 
         parser = ArgParserFactory().create([f1, f2])
         parser.parse()
+
+    def test_broken_docstring(self):
+        def f1(name: str):
+            """f1
+            Very useful function
+
+                Args:
+                name: name
+            """
+
+        def f2(qqq: str):
+            """f1
+            Very useful function
+
+            Args:
+                name: name
+            """
+
+        try:
+            parser = ArgParserFactory().create(f1)
+            self.fail()
+        except ValueError:
+            pass
+
+        try:
+            parser = ArgParserFactory().create(f2)
+            self.fail()
+        except ValueError:
+            pass
+

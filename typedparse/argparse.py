@@ -135,6 +135,7 @@ class ArgParserNode(AbstractArgParser):
 class ArgParserFactory(ParserFactory):
     def __init__(self, options: ArgParserOptions = None, parser: ty.Optional[ArgumentParser] = None):
         self._parser = parser or ArgumentParser()
+        self._parser.set_defaults(func=lambda args: self._parser.print_help())
         self._options = options or ArgParserOptions()
 
     def create(self, obj: ty.Any) -> Parser:

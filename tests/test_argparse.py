@@ -377,3 +377,19 @@ class TestArgParse(unittest.TestCase):
         parser.parse(["--my_long_flag", "test"])
 
         self.assertEqual("test", holder.args["my_long_flag"])
+
+    def test_subparsers_with_no_args(self):
+        def f1(name: str):
+            """f1
+            :param name: name
+            :return: None
+            """
+
+        def f2(name: str):
+            """f2
+            :param name: name
+            :return: None
+            """
+
+        parser = ArgParserFactory().create([f1, f2])
+        parser.parse()

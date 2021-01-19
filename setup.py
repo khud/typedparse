@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="typedparse",
-    version="0.3.dev0",
+    version="0.3",
     author="Vitaly Khudobakhshov",
     author_email="vitaly.khudobakhshov@gmail.com",
     packages=["typedparse"],
